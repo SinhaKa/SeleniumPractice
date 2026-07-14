@@ -1,0 +1,16 @@
+*** Settings ***
+Documentation    A file which has reusable keywords and variables
+...              The system specific keywords created here
+...              from our own domain specific language
+Library    SeleniumLibrary
+
+*** Variables ***
+${url}    https://rahulshettyacademy.com/loginpagePractise/
+${username}    rahulshettyacademy
+${valid_Pass}    learning
+${invalid_Pass}    12345678
+
+*** Keywords ***
+Open browser and maximise
+    Open Browser    https://www.google.com/    chrome
+    Maximize Browser Window
