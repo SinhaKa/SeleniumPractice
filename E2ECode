@@ -1,0 +1,121 @@
+import time
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions
+from selenium.common.exceptions import NoSuchElementException
+
+driver = webdriver.Chrome()
+driver.get("https://rahulshettyacademy.com/AutomationPractice/")
+driver.maximize_window()
+heading = driver.find_element(By.TAG_NAME, "h1").text
+assert heading == "Practice Page"
+radio = driver.find_element(By.XPATH,"//input[@value='radio1']")
+radio.click()
+driver.find_element(By.XPATH,"//input[@value='radio3']").click()
+print(radio.is_selected())
+country = driver.find_element(By.CLASS_NAME,"ui-autocomplete-input")
+country.send_keys("au")
+time.sleep(2)
+values = driver.find_elements(By.XPATH,"//li[@class='ui-menu-item']/div")
+for value in values:
+    if value.text == "Macau":
+        value.click()
+        break
+dropdown = Select(driver.find_element(By.ID, "dropdown-class-example"))
+dropdown.select_by_visible_text("Option3")
+options = dropdown.options
+seclast = len(options) -2
+dropdown.select_by_index(seclast)
+time.sleep(10)
+driver.find_element(By.ID,"checkBoxOption1").click()
+driver.find_element(By.ID,"checkBoxOption3").click()
+
+driver.find_element(By.ID,"openwindow").click()
+windows = driver.window_handles
+driver.switch_to.window(windows[1])
+driver.close()
+driver.switch_to.window(windows[0])
+time.sleep(2)
+driver.find_element(By.ID,"opentab").click()
+tabs = driver.window_handles
+driver.switch_to.window(tabs[1])
+time.sleep(2)
+print(driver.title)
+driver.switch_to.window(tabs[0])
+driver.find_element(By.ID,"name").send_keys("Kamna")
+driver.find_element(By.ID, "alertbtn").click()
+alert = driver.switch_to.alert
+print(alert.text)
+alert.accept()
+driver.find_element(By.ID, "confirmbtn").click()
+driver.switch_to.alert.dismiss()
+driver.find_element(By.ID, "hide-textbox").click()
+textbox = driver.find_element(By.ID,"displayed-text")
+print(textbox.is_displayed())
+driver.find_element(By.ID, "show-textbox").click()
+print(textbox.is_displayed())
+textbox.send_keys("Hello")
+time.sleep(2)
+
+rows = driver.find_elements(By.CSS_SELECTOR,"table[name='courses'] tr")
+for row in rows:
+    column = row.find_elements(By.CSS_SELECTOR,"td")
+    if len(column)>=3:
+        course = column[1].text
+        Instructor = column[0].text
+        price = column[2].text
+        if course == "Appium (Selenium) - Mobile Automation Testing from Scratch":
+            print("For this course - ",course)
+            print("Instructor:", Instructor)
+            print("Price:", price)
+datas = driver.find_elements(By.XPATH,"(//table[@id='product'])[2]//tr")
+cities=[]
+a = 0
+for data in datas:
+    content = data.find_elements(By.CSS_SELECTOR,"td")
+    if len(content)>=4:
+        name = content[0].text
+        position = content[1].text
+        city = content[2].text
+        amount = content[3].text
+        print(name)
+        if city not in cities:
+            cities.append(city)
+        a=a+int(amount)
+print(cities)
+print(a)
+total = driver.find_element(By.CLASS_NAME, "totalAmount").text
+collectedAmount = int(total.split(":")[1].strip())
+print(collectedAmount)
+assert a == collectedAmount
+actions = ActionChains(driver)
+mousehover = driver.find_element(By.CSS_SELECTOR,"#mousehover")
+actions.move_to_element(mousehover).perform()
+reloadPage = driver.find_element(By.XPATH, "//a[text()='Reload']")
+actions.move_to_element(reloadPage).click().perform()
+
+time.sleep(2)
+iframe = driver.find_element(By.ID,"courses-iframe")
+driver.execute_script("arguments[0].scrollIntoView();",iframe)
+driver.switch_to.frame(iframe)
+driver.find_element(By.XPATH, "//a[contains(text(),'VIEW')]").click()
+wait = WebDriverWait(driver,10)
+wait.until(expected_conditions.visibility_of_element_located((By.XPATH,"//input[@type='search']")))
+driver.find_element(By.XPATH,"//input[@type='search']").send_keys("Python")
+wait = WebDriverWait(driver,10)
+wait.until(expected_conditions.visibility_of_all_elements_located((By.CLASS_NAME,"ProductTitle")))
+titles = driver.find_elements(By.CLASS_NAME,"ProductTitle")
+for title in titles:
+    print(title.text)
+driver.switch_to.default_content()
+driver.find_element(By.XPATH,"//a[text()='REST API']").click()
+driver.back()
+driver.find_element(By.XPATH,"//a[text()='Broken Link']").click()
+try:
+    driver.find_element(By.XPATH,"//div[contains(text(),'404')]")
+    print("404 - Not Found, error detected on the page")
+except NoSuchElementException:
+    print("Page is fine")
