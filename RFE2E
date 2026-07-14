@@ -1,0 +1,84 @@
+*** Settings ***
+Library    SeleniumLibrary
+Library    Collections
+Metadata    Tester    Kamna
+Documentation    To validate the login form
+Suite Setup    Open browser and maximise
+#Suite Teardown    Close Browser
+Resource        Resources.robot
+
+*** Variables ***
+${error_Message}    css:.alert-danger
+${HomePage}    css:.nav-link
+
+*** Test Cases ***
+TC001 Validate unsuccessful login
+    [Tags]    Throws error
+    Go to the url
+    Fill the form    ${username}    ${invalid_Pass}
+    wait until element is loaded    ${error_Message}
+    Verify error message is correct
+
+TC002 Validate cards displayed in the Shopping page
+    [Tags]    Logs in
+    Go to the url
+    Fill The Form    ${username}    ${valid_Pass}
+    wait until element is loaded    ${HomePage}
+    Verify cards title in the page
+    Select a card    Nokia Edge
+
+TC003 Fill form and navigate to child window
+    [Tags]    Skip    Not ready yet
+    Go to the url
+    Fill The Form and select user option
+
+*** Keywords ***
+Go to the url
+    Go To    ${url}
+    
+Fill the form
+    [Arguments]    ${username}    ${password}
+    Input Text    id:username    ${username}
+    Input Password    id:password    ${password}
+    Click Button    signInBtn
+    Capture Page Screenshot
+
+wait until element is loaded
+    [Arguments]    ${element}
+    Wait Until Element Is Visible    ${element}
+    Capture Page Screenshot
+
+Verify error message is correct
+    ${message}=    Get Text    css:.alert-danger
+    Should Be Equal    ${message}    Incorrect username/password.
+    Capture Page Screenshot
+
+Verify cards title in the page
+    @{expectedList}=    Create List    iphone X    Samsung Note 8    Nokia Edge    Blackberry
+    @{elements}=    Get Webelements    css:.card-title
+    @{actualList}=    Create List
+    FOR    ${element}    IN    @{elements}
+        Append To List    ${actualList}    ${element.text}
+    END
+    Lists Should Be Equal    ${expectedList}    ${actualList}
+    Capture Page Screenshot
+    
+Select a card
+    [Arguments]    ${cardName}
+    @{elements}=    Get WebElements    css:.card-title
+    ${index}=    Set Variable    1
+    FOR    ${element}    IN    @{elements}
+        Exit For Loop If    '${cardName}' == '${element.text}'
+        ${index}=    Evaluate    ${index} + 1
+    END
+    Click Button    xpath:(//*[@class='card-footer'])[${index}]/button
+    Capture Page Screenshot
+    Sleep    5s
+    Click Button    xpath://a[contains(text(),"Checkout")]
+    Sleep    5s
+
+Fill The Form and select user option
+    Input Text    id:username    ${username}
+    Input Password    id:password    ${valid_Pass}
+    Click Element    input[value='user']
+    Select From List By Value    css:select.form-control    consult
