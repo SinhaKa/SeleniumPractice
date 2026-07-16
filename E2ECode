@@ -29,7 +29,7 @@ dropdown.select_by_visible_text("Option3")
 options = dropdown.options
 seclast = len(options) -2
 dropdown.select_by_index(seclast)
-time.sleep(10)
+driver.implicitly_wait(10)
 driver.find_element(By.ID,"checkBoxOption1").click()
 driver.find_element(By.ID,"checkBoxOption3").click()
 
